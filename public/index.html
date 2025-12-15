@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biblioteca IF - Sistema de Gerenciamento</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo-container" onclick="mostrarSecao('dashboard')" style="cursor: pointer;">
+                <div class="logo-icon">📚</div>
+                <div class="logo-text">
+                    <h1>Biblioteca IF</h1>
+                    <p>Sistema de Gerenciamento</p>
+                </div>
+            </div>
+            <nav>
+                <button class="nav-btn active" data-section="dashboard">Início</button>
+                <button class="nav-btn" data-section="livros">Livros</button>
+                <button class="nav-btn" data-section="usuarios">Usuários</button>
+                <button class="nav-btn" data-section="emprestimos">Empréstimos</button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- Dashboard / Página Inicial -->
+        <section id="dashboard" class="section active">
+            <div class="hero-section">
+                <h2 class="hero-title">Gerencie sua Biblioteca Escolar</h2>
+                <p class="hero-subtitle">Sistema completo para controle de livros, usuários, empréstimos e multas</p>
+            </div>
+
+            <div class="features-grid">
+                <div class="feature-card" data-section="livros" onclick="mostrarSecao('livros')">
+                    <div class="feature-icon blue">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                        </svg>
+                    </div>
+                    <h3>Livros</h3>
+                    <p>Cadastre e gerencie o acervo completo da biblioteca</p>
+                </div>
+
+                <div class="feature-card" data-section="usuarios" onclick="mostrarSecao('usuarios')">
+                    <div class="feature-icon green">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                        </svg>
+                    </div>
+                    <h3>Usuários</h3>
+                    <p>Cadastre estudantes e controle acessos</p>
+                </div>
+
+                <div class="feature-card" data-section="emprestimos" onclick="mostrarSecao('emprestimos')">
+                    <div class="feature-icon purple">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                            <path d="M9 9h6"></path>
+                            <path d="M9 13h6"></path>
+                        </svg>
+                    </div>
+                    <h3>Empréstimos</h3>
+                    <p>Controle empréstimos e devoluções de livros</p>
+                </div>
+
+                <div class="feature-card highlighted" data-section="emprestimos" onclick="mostrarSecao('emprestimos')">
+                    <div class="feature-icon orange">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+                            <polyline points="17 6 23 6 23 12"></polyline>
+                        </svg>
+                    </div>
+                    <h3>Multas</h3>
+                    <p>Gerencie multas por atraso nas devoluções</p>
+                </div>
+            </div>
+
+            <div class="cta-section">
+                <div class="cta-content">
+                    <h2>Comece Agora</h2>
+                    <p>Cadastre livros e usuários para iniciar o gerenciamento</p>
+                </div>
+                <div class="cta-buttons">
+                    <button class="btn btn-success btn-lg" onclick="abrirModalLivro()">Cadastrar Livro</button>
+                    <button class="btn btn-success btn-lg" onclick="abrirModalUsuario()">Cadastrar Usuário</button>
+                </div>
+            </div>
+        </section>
+        <!-- Seção de Livros -->
+        <section id="livros" class="section">
+            <div class="section-header">
+                <h2>Gerenciamento de Livros</h2>
+                <button class="btn btn-primary" onclick="abrirModalLivro()">+ Novo Livro</button>
+            </div>
+
+            <div class="search-bar">
+                <input type="text" id="buscaLivro" placeholder="Buscar por título ou autor..." onkeyup="buscarLivros()">
+                <button class="btn btn-secondary" onclick="buscarLivros()">🔍 Buscar</button>
+            </div>
+
+            <div class="table-container">
+                <table id="tabelaLivros">
+                    <thead>
+                        <tr>
+                            <th onclick="ordenarTabela('livros', 'id')" class="sortable">
+                                ID <span class="sort-icon" id="sort-livros-id">⇅</span>
+                            </th>
+                            <th onclick="ordenarTabela('livros', 'titulo')" class="sortable">
+                                Título <span class="sort-icon" id="sort-livros-titulo">⇅</span>
+                            </th>
+                            <th onclick="ordenarTabela('livros', 'autor')" class="sortable">
+                                Autor <span class="sort-icon" id="sort-livros-autor">⇅</span>
+                            </th>
+                            <th onclick="ordenarTabela('livros', 'editora')" class="sortable">
+                                Editora <span class="sort-icon" id="sort-livros-editora">⇅</span>
+                            </th>
+                            <th onclick="ordenarTabela('livros', 'ano_publicacao')" class="sortable">
+                                Ano <span class="sort-icon" id="sort-livros-ano_publicacao">⇅</span>
+                            </th>
+                            <th onclick="ordenarTabela('livros', 'quantidade_disponivel')" class="sortable">
+                                Disponível <span class="sort-icon" id="sort-livros-quantidade_disponivel">⇅</span>
+                            </th>
+                            <th onclick="ordenarTabela('livros', 'categoria')" class="sortable">
+                                Categoria <span class="sort-icon" id="sort-livros-categoria">⇅</span>
+                            </th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbodyLivros"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Seção de Usuários -->
+        <section id="usuarios" class="section">
+            <div class="section-header">
+                <h2>Gerenciamento de Usuários</h2>
+                <button class="btn btn-primary" onclick="abrirModalUsuario()">+ Novo Usuário</button>
+            </div>
+
+            <div class="table-container">
+                <table id="tabelaUsuarios">
+                    <thead>
+                        <tr>
+                            <th onclick="ordenarTabela('usuarios', 'id')" class="sortable">
+                                ID <span class="sort-icon" id="sort-usuarios-id">⇅</span>
+                            </th>
+                            <th onclick="ordenarTabela('usuarios', 'nome')" class="sortable">
+                                Nome <span class="sort-icon" id="sort-usuarios-nome">⇅</span>
+                            </th>
+                            <th onclick="ordenarTabela('usuarios', 'email')" class="sortable">
+                                Email <span class="sort-icon" id="sort-usuarios-email">⇅</span>
+                            </th>
+                            <th onclick="ordenarTabela('usuarios', 'telefone')" class="sortable">
+                                Telefone <span class="sort-icon" id="sort-usuarios-telefone">⇅</span>
+                            </th>
+                            <th onclick="ordenarTabela('usuarios', 'tipo')" class="sortable">
+                                Tipo <span class="sort-icon" id="sort-usuarios-tipo">⇅</span>
+                            </th>
+                            <th onclick="ordenarTabela('usuarios', 'matricula')" class="sortable">
+                                Matrícula <span class="sort-icon" id="sort-usuarios-matricula">⇅</span>
+                            </th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbodyUsuarios"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Seção de Empréstimos -->
+        <section id="emprestimos" class="section">
+            <div class="section-header">
+                <h2>Gerenciamento de Empréstimos</h2>
+                <button class="btn btn-primary" onclick="abrirModalEmprestimo()">+ Novo Empréstimo</button>
+            </div>
+
+            <div class="table-container">
+                <table id="tabelaEmprestimos">
+                    <thead>
+                        <tr>
+                            <th onclick="ordenarTabela('emprestimos', 'id')" class="sortable">
+                                ID <span class="sort-icon" id="sort-emprestimos-id">⇅</span>
+                            </th>
+                            <th onclick="ordenarTabela('emprestimos', 'livro_titulo')" class="sortable">
+                                Livro <span class="sort-icon" id="sort-emprestimos-livro_titulo">⇅</span>
+                            </th>
+                            <th onclick="ordenarTabela('emprestimos', 'usuario_nome')" class="sortable">
+                                Usuário <span class="sort-icon" id="sort-emprestimos-usuario_nome">⇅</span>
+                            </th>
+                            <th onclick="ordenarTabela('emprestimos', 'data_emprestimo')" class="sortable">
+                                Data Empréstimo <span class="sort-icon" id="sort-emprestimos-data_emprestimo">⇅</span>
+                            </th>
+                            <th onclick="ordenarTabela('emprestimos', 'data_devolucao_real')" class="sortable">
+                                Data Devolução <span class="sort-icon" id="sort-emprestimos-data_devolucao_real">⇅</span>
+                            </th>
+                            <th onclick="ordenarTabela('emprestimos', 'status')" class="sortable">
+                                Status <span class="sort-icon" id="sort-emprestimos-status">⇅</span>
+                            </th>
+                            <th onclick="ordenarTabela('emprestimos', 'multa')" class="sortable">
+                                Multa <span class="sort-icon" id="sort-emprestimos-multa">⇅</span>
+                            </th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbodyEmprestimos"></tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal de Livro -->
+    <div id="modalLivro" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="fecharModalLivro()">&times;</span>
+            <h2 id="tituloModalLivro">Novo Livro</h2>
+            <form id="formLivro" onsubmit="salvarLivro(event)">
+                <input type="hidden" id="livroId">
+                <div class="form-group">
+                    <label>Título *</label>
+                    <input type="text" id="livroTitulo" required>
+                </div>
+                <div class="form-group">
+                    <label>Autor *</label>
+                    <input type="text" id="livroAutor" required>
+                </div>
+                <div class="form-group">
+                    <label>ISBN</label>
+                    <input type="text" id="livroIsbn">
+                </div>
+                <div class="form-group">
+                    <label>Editora</label>
+                    <input type="text" id="livroEditora">
+                </div>
+                <div class="form-group">
+                    <label>Ano de Publicação</label>
+                    <input type="number" id="livroAno">
+                </div>
+                <div class="form-group">
+                    <label>Quantidade Total</label>
+                    <input type="number" id="livroQuantidade" value="1" min="1">
+                </div>
+                <div class="form-group">
+                    <label>Categoria</label>
+                    <input type="text" id="livroCategoria">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="fecharModalLivro()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal de Usuário -->
+    <div id="modalUsuario" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="fecharModalUsuario()">&times;</span>
+            <h2 id="tituloModalUsuario">Novo Usuário</h2>
+            <form id="formUsuario" onsubmit="salvarUsuario(event)">
+                <input type="hidden" id="usuarioId">
+                <div class="form-group">
+                    <label>Nome *</label>
+                    <input type="text" id="usuarioNome" required>
+                </div>
+                <div class="form-group">
+                    <label>Email *</label>
+                    <input type="email" id="usuarioEmail" required>
+                </div>
+                <div class="form-group">
+                    <label>Telefone</label>
+                    <input type="text" id="usuarioTelefone" placeholder="(00) 00000-0000">
+                </div>
+                <div class="form-group">
+                    <label>Tipo *</label>
+                    <select id="usuarioTipo" required>
+                        <option value="">Selecione...</option>
+                        <option value="aluno">Aluno</option>
+                        <option value="professor">Professor</option>
+                        <option value="funcionario">Funcionário</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Matrícula</label>
+                    <input type="text" id="usuarioMatricula">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="fecharModalUsuario()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal de Empréstimo -->
+    <div id="modalEmprestimo" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="fecharModalEmprestimo()">&times;</span>
+            <h2 id="tituloModalEmprestimo">Novo Empréstimo</h2>
+            <form id="formEmprestimo" onsubmit="salvarEmprestimo(event)">
+                <input type="hidden" id="emprestimoId">
+                <div class="form-group">
+                    <label>Livro *</label>
+                    <select id="emprestimoLivro" required>
+                        <option value="">Selecione um livro...</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Usuário *</label>
+                    <select id="emprestimoUsuario" required>
+                        <option value="">Selecione um usuário...</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Data de Empréstimo</label>
+                    <input type="date" id="emprestimoDataEmprestimo">
+                </div>
+                <div class="form-group">
+                    <label>Data de Devolução Prevista</label>
+                    <input type="date" id="emprestimoDataDevolucao">
+                </div>
+                <div class="form-group">
+                    <label>Data de Devolução Real</label>
+                    <input type="date" id="emprestimoDataDevolucaoReal">
+                </div>
+                <div class="form-group">
+                    <label>Status</label>
+                    <select id="emprestimoStatus">
+                        <option value="ativo">Ativo</option>
+                        <option value="atrasado">Atrasado</option>
+                        <option value="devolvido">Devolvido</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Multa (R$)</label>
+                    <input type="number" id="emprestimoMulta" step="0.01" min="0" value="0">
+                </div>
+                <div class="form-group" id="grupoDiasEmprestimo">
+                    <label>Dias de Empréstimo</label>
+                    <input type="number" id="emprestimoDias" value="7" min="1">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="fecharModalEmprestimo()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" id="btnSalvarEmprestimo">Realizar Empréstimo</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal de Notificação (Sucesso/Erro) -->
+    <div id="modalNotificacao" class="modal-notificacao">
+        <div class="notificacao-content">
+            <div class="notificacao-icon" id="notificacaoIcon"></div>
+            <div class="notificacao-message" id="notificacaoMessage"></div>
+            <button class="btn btn-primary" onclick="fecharNotificacao()">OK</button>
+        </div>
+    </div>
+
+    <!-- Modal de Confirmação -->
+    <div id="modalConfirmacao" class="modal-notificacao">
+        <div class="notificacao-content">
+            <div class="notificacao-icon" id="confirmacaoIcon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+            </div>
+            <div class="notificacao-message" id="confirmacaoMessage"></div>
+            <div class="confirmacao-buttons">
+                <button class="btn btn-secondary" onclick="cancelarConfirmacao()">Cancelar</button>
+                <button class="btn btn-primary" id="btnConfirmar">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
+
