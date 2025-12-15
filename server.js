@@ -10,7 +10,6 @@ const PORT = process.env.PORT || 3000;
 // Middleware
 app.use(cors());
 app.use(express.json());
-app.use(express.static('public'));
 
 // Configuração do banco de dados
 const dbConfig = {
@@ -461,8 +460,16 @@ async function testarConexao() {
     }
 }
 
-// Rota para servir o index.html na raiz
-app.get('/', (req, res) => {
+// Servir arquivos estáticos (CSS, JS, imagens) - DEVE VIR DEPOIS DAS ROTAS DA API
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Rota catch-all para servir index.html (SPA) - DEVE SER A ÚLTIMA
+app.get('*', (req, res) => {
+    // Se for uma rota da API, retornar 404
+    if (req.path.startsWith('/api')) {
+        return res.status(404).json({ error: 'Rota da API não encontrada' });
+    }
+    // Para todas as outras rotas, servir o index.html
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
