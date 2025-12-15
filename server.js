@@ -1,6 +1,7 @@
 const express = require('express');
 const mysql = require('mysql2/promise');
 const cors = require('cors');
+const path = require('path');
 require('dotenv').config();
 
 const app = express();
@@ -460,10 +461,20 @@ async function testarConexao() {
     }
 }
 
-// Iniciar servidor
-app.listen(PORT, async () => {
-    console.log(`\n🚀 Servidor rodando na porta ${PORT}`);
-    console.log(`📖 Acesse: http://localhost:${PORT}\n`);
-    await testarConexao();
+// Rota para servir o index.html na raiz
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
+
+// Iniciar servidor (apenas se não estiver na Vercel)
+if (process.env.VERCEL !== '1') {
+    app.listen(PORT, async () => {
+        console.log(`\n🚀 Servidor rodando na porta ${PORT}`);
+        console.log(`📖 Acesse: http://localhost:${PORT}\n`);
+        await testarConexao();
+    });
+}
+
+// Exportar para Vercel
+module.exports = app;
 

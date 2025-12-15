@@ -1,4 +1,5 @@
-const API_URL = 'http://localhost:3000/api';
+// Detectar URL da API automaticamente
+const API_URL = window.location.origin + '/api';
 
 // Variáveis globais para ordenação
 let dadosLivros = [];
