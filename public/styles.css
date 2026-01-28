@@ -337,7 +337,26 @@ nav {
     font-size: 0.95rem;
 }
 
+.search-bar input#meusMatricula {
+    flex: 1;
+}
+
+.search-bar select {
+    min-width: 220px;
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    font-size: 0.95rem;
+    background: var(--card-bg);
+}
+
 .search-bar input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.search-bar select:focus {
     outline: none;
     border-color: var(--primary-color);
     box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);

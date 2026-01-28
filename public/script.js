@@ -3,6 +3,7 @@ const API_URL = window.location.origin + '/api';
 
 // Variáveis globais para ordenação
 let dadosLivros = [];
+let dadosLivrosBase = [];
 let dadosUsuarios = [];
 let dadosEmprestimos = [];
 let ordenacaoAtual = {
@@ -41,10 +42,49 @@ function mostrarSecao(section) {
         carregarUsuarios();
     } else if (section === 'emprestimos') {
         carregarEmprestimos();
+    } else if (section === 'meus-emprestimos') {
+        prepararMeusEmprestimos();
+    }
+}
+
+function prepararMeusEmprestimos() {
+    const tbody = document.getElementById('tbodyMeusEmprestimos');
+    if (tbody) {
+        tbody.innerHTML = '<tr><td colspan="6" class="empty-state">Informe email e matrícula para consultar seus empréstimos</td></tr>';
     }
 }
 
 // ========== FUNÇÕES DE LIVROS ==========
+
+function atualizarSelectCategoriasAPartirDosLivros(livros) {
+    const select = document.getElementById('filtroCategoria');
+    if (!select) return;
+
+    const valorAtual = (select.value || '').trim();
+    const set = new Set();
+
+    (livros || []).forEach(l => {
+        const cat = (l.categoria || '').toString().trim();
+        if (cat) set.add(cat);
+    });
+
+    const categorias = Array.from(set).sort((a, b) => a.localeCompare(b, 'pt-BR'));
+
+    select.innerHTML = '<option value="">Todas as categorias</option>';
+    categorias.forEach(cat => {
+        const option = document.createElement('option');
+        option.value = cat;
+        option.textContent = cat;
+        select.appendChild(option);
+    });
+
+    if (valorAtual && categorias.includes(valorAtual)) {
+        select.value = valorAtual;
+    } else if (valorAtual) {
+        // se a categoria selecionada não existe mais, volta para "todas"
+        select.value = '';
+    }
+}
 
 async function carregarLivros() {
     try {
@@ -59,7 +99,9 @@ async function carregarLivros() {
         
         // Verificar se é um array
         if (Array.isArray(data)) {
+            dadosLivrosBase = data;
             dadosLivros = data;
+            atualizarSelectCategoriasAPartirDosLivros(dadosLivrosBase);
             aplicarOrdenacao('livros');
             atualizarIconesOrdenacao('livros', 'id');
         } else {
@@ -112,16 +154,24 @@ function exibirLivros(livros) {
 
 async function buscarLivros() {
     const termo = document.getElementById('buscaLivro').value.trim();
+    const categoria = (document.getElementById('filtroCategoria')?.value || '').trim();
     
     try {
-        let response;
-        if (termo) {
-            response = await fetch(`${API_URL}/livros/busca/${encodeURIComponent(termo)}`);
-        } else {
-            response = await fetch(`${API_URL}/livros`);
-        }
-        const livros = await response.json();
-        dadosLivros = Array.isArray(livros) ? livros : [];
+        // filtro local (sem precisar de tabela/rota de categorias)
+        const termoLower = termo.toLowerCase();
+        const categoriaLower = categoria.toLowerCase();
+
+        const filtrados = (dadosLivrosBase || []).filter(l => {
+            const titulo = (l.titulo || '').toString().toLowerCase();
+            const autor = (l.autor || '').toString().toLowerCase();
+            const cat = (l.categoria || '').toString().toLowerCase();
+
+            const bateTermo = !termoLower || titulo.includes(termoLower) || autor.includes(termoLower);
+            const bateCategoria = !categoriaLower || cat === categoriaLower;
+            return bateTermo && bateCategoria;
+        });
+
+        dadosLivros = filtrados;
         aplicarOrdenacao('livros');
         atualizarIconesOrdenacao('livros', 'id');
     } catch (error) {
@@ -755,6 +805,70 @@ async function devolverLivro(id) {
             mostrarErro('Não foi possível devolver o livro. Tente novamente.');
         }
     });
+}
+
+// ========== MEUS EMPRÉSTIMOS (ALUNO) ==========
+
+function exibirMeusEmprestimos(emprestimos) {
+    const tbody = document.getElementById('tbodyMeusEmprestimos');
+    if (!tbody) return;
+
+    if (!emprestimos || emprestimos.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="empty-state">Nenhum empréstimo encontrado</td></tr>';
+        return;
+    }
+
+    tbody.innerHTML = emprestimos.map(emp => {
+        const statusClass = `status-${emp.status}`;
+        const multa = emp.multa > 0 ? `R$ ${parseFloat(emp.multa).toFixed(2)}` : '-';
+        const dataEmp = emp.data_emprestimo ? new Date(emp.data_emprestimo).toLocaleDateString('pt-BR') : '-';
+        const dataDev = emp.data_devolucao_real
+            ? new Date(emp.data_devolucao_real).toLocaleDateString('pt-BR')
+            : '-';
+
+        return `
+            <tr>
+                <td>${emp.id}</td>
+                <td>${emp.livro_titulo || '-'}</td>
+                <td>${dataEmp}</td>
+                <td>${dataDev}</td>
+                <td><span class="status-badge ${statusClass}">${emp.status}</span></td>
+                <td>${multa}</td>
+            </tr>
+        `;
+    }).join('');
+}
+
+async function carregarMeusEmprestimos() {
+    const matricula = (document.getElementById('meusMatricula')?.value || '').trim();
+
+    if (!matricula) {
+        mostrarErro('Informe a matrícula para consultar.');
+        return;
+    }
+
+    const tbody = document.getElementById('tbodyMeusEmprestimos');
+    if (tbody) {
+        tbody.innerHTML = '<tr><td colspan="6" class="empty-state">Carregando...</td></tr>';
+    }
+
+    try {
+        const params = new URLSearchParams({ matricula });
+        const response = await fetch(`${API_URL}/emprestimos/meus?${params.toString()}`);
+        const data = await response.json();
+
+        if (!response.ok) {
+            mostrarErro(data.error || 'Erro ao consultar empréstimos');
+            exibirMeusEmprestimos([]);
+            return;
+        }
+
+        exibirMeusEmprestimos(Array.isArray(data.emprestimos) ? data.emprestimos : []);
+    } catch (error) {
+        console.error('Erro ao consultar meus empréstimos:', error);
+        mostrarErro('Não foi possível consultar seus empréstimos. Tente novamente.');
+        exibirMeusEmprestimos([]);
+    }
 }
 
 // ========== FUNÇÕES AUXILIARES ==========

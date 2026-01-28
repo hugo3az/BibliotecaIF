@@ -225,6 +225,43 @@ app.delete('/api/usuarios/:id', async (req, res) => {
 
 // ========== ROTAS DE EMPRÉSTIMOS ==========
 
+// Meus empréstimos (por email + matrícula)
+app.get('/api/emprestimos/meus', async (req, res) => {
+    try {
+        const matricula = (req.query.matricula || '').toString().trim();
+
+        if (!matricula) {
+            return res.status(400).json({ error: 'Matrícula é obrigatória' });
+        }
+
+        // Validar usuário pela matrícula
+        const [usuarios] = await pool.execute(
+            'SELECT id, nome, email, matricula, tipo FROM usuarios WHERE matricula = ? LIMIT 1',
+            [matricula]
+        );
+
+        if (usuarios.length === 0) {
+            return res.status(404).json({ error: 'Usuário não encontrado com esta matrícula' });
+        }
+
+        // Retornar apenas empréstimos do usuário
+        // A view vw_emprestimos_completos não expõe usuario_id, então filtramos por email (ou nome/email).
+        const emailUsuario = usuarios[0].email;
+        const [rows] = await pool.execute(
+            'SELECT * FROM vw_emprestimos_completos WHERE usuario_email = ? ORDER BY data_emprestimo DESC',
+            [emailUsuario]
+        );
+
+        res.json({
+            usuario: usuarios[0],
+            emprestimos: rows
+        });
+    } catch (error) {
+        console.error('Erro ao buscar meus empréstimos:', error);
+        res.status(500).json({ error: 'Erro ao buscar meus empréstimos' });
+    }
+});
+
 // Listar todos os empréstimos
 app.get('/api/emprestimos', async (req, res) => {
     try {

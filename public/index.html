@@ -21,6 +21,7 @@
                 <button class="nav-btn" data-section="livros">Livros</button>
                 <button class="nav-btn" data-section="usuarios">Usuários</button>
                 <button class="nav-btn" data-section="emprestimos">Empréstimos</button>
+                <button class="nav-btn" data-section="meus-emprestimos">Meus Empréstimos</button>
             </nav>
         </div>
     </header>
@@ -94,6 +95,7 @@
                 </div>
             </div>
         </section>
+        
         <!-- Seção de Livros -->
         <section id="livros" class="section">
             <div class="section-header">
@@ -103,6 +105,9 @@
 
             <div class="search-bar">
                 <input type="text" id="buscaLivro" placeholder="Buscar por título ou autor..." onkeyup="buscarLivros()">
+                <select id="filtroCategoria" onchange="buscarLivros()" aria-label="Filtrar por categoria">
+                    <option value="">Todas as categorias</option>
+                </select>
                 <button class="btn btn-secondary" onclick="buscarLivros()">🔍 Buscar</button>
             </div>
 
@@ -212,6 +217,34 @@
                         </tr>
                     </thead>
                     <tbody id="tbodyEmprestimos"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Seção: Meus Empréstimos (Aluno) -->
+        <section id="meus-emprestimos" class="section">
+            <div class="section-header">
+                <h2>Meus Empréstimos</h2>
+            </div>
+
+            <div class="search-bar">
+                <input type="text" id="meusMatricula" placeholder="Informe sua matrícula..." autocomplete="off">
+                <button class="btn btn-secondary" onclick="carregarMeusEmprestimos()">🔍 Consultar</button>
+            </div>
+
+            <div class="table-container">
+                <table id="tabelaMeusEmprestimos">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Livro</th>
+                            <th>Data Empréstimo</th>
+                            <th>Devolução</th>
+                            <th>Status</th>
+                            <th>Multa</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbodyMeusEmprestimos"></tbody>
                 </table>
             </div>
         </section>
